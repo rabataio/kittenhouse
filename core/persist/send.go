@@ -262,6 +262,7 @@ func (s *sender) loop() {
 
 			log.Printf("bla bla bla im here")
 			if err == nil {
+				log.Printf("Yeaaa its not a error")
 				sleepInterval = pollInterval
 			} else {
 				log.Printf("Could not loop iteration: %s", err.Error())
