@@ -262,10 +262,8 @@ func (s *sender) loop() {
 
 			log.Printf("bla bla bla im here")
 			if err == nil {
-				log.Printf("Yeaaa its not a error")
 				sleepInterval = pollInterval
 			} else {
-				log.Printf("Oh shit, its error")
 				log.Printf("Could not loop iteration: %s", err.Error())
 				sleepInterval *= 2
 				if sleepInterval > maxPollInterval {
@@ -286,7 +284,7 @@ func (s *sender) loop() {
 	}
 }
 
-func (s *sender) loopIteration(filesList []string) (fullyDelivered bool, err error) {
+func (s *sender) loopIteration(filesList []string) (fullyDelivered bool, err1 error) {
 	fullyDelivered = true
 
 	for _, relFilename := range filesList {
@@ -304,7 +302,7 @@ func (s *sender) loopIteration(filesList []string) (fullyDelivered bool, err err
 		off, fully, sendErr := s.sendFile(relFilename, off)
 		if sendErr != nil {
 			log.Printf("Could not send file %s: %s", relFilename, sendErr.Error())
-			err = sendErr
+			err1 = sendErr
 		} else {
 			if !fully {
 				fullyDelivered = false
@@ -313,7 +311,7 @@ func (s *sender) loopIteration(filesList []string) (fullyDelivered bool, err err
 		}
 	}
 
-	return fullyDelivered, err
+	return fullyDelivered, err1
 }
 
 func (s *sender) sendFile(relFilename string, off ackOff) (newOff ackOff, fullyDelivered bool, err error) {
