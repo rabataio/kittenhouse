@@ -265,6 +265,7 @@ func (s *sender) loop() {
 				log.Printf("Yeaaa its not a error")
 				sleepInterval = pollInterval
 			} else {
+				log.Printf("Oh shit, its error")
 				log.Printf("Could not loop iteration: %s", err.Error())
 				sleepInterval *= 2
 				if sleepInterval > maxPollInterval {
