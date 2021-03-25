@@ -9,7 +9,7 @@ KittenHouse is meant to be installed on each host of the cluster that needs to i
 You will need to do the following to install kittenhouse on your server (the only platform that we tested is Linux but it should work on other platforms as well):
 
 1. Install go (https://golang.org/)
-2. `go get github.com/NevolinAlex/kittenhouse`
+2. `go get mykittenhouse`
 3. You're done, your binary is located at `$GOPATH/bin/kittenhouse` (e.g. `~/go/bin/kittenhouse`)
 
 ## Command-line options

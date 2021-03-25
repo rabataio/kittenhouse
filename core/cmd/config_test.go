@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/NevolinAlex/kittenhouse/core/destination"
+	"mykittenhouse/core/destination"
 )
 
 func TestRemoveComments(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"net"
 	"syscall"
 
-	"github.com/NevolinAlex/kittenhouse/core/inmem"
+	"mykittenhouse/core/inmem"
 )
 
 var (

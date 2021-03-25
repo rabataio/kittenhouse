@@ -3,7 +3,7 @@ package inmem
 import (
 	"sync"
 
-	"github.com/NevolinAlex/kittenhouse/core/destination"
+	"mykittenhouse/core/destination"
 )
 
 const (

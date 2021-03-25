@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/NevolinAlex/kittenhouse/core/clickhouse"
-	"github.com/NevolinAlex/kittenhouse/core/destination"
+	"mykittenhouse/core/clickhouse"
+	"mykittenhouse/core/destination"
 )
 
 const (
@@ -260,6 +260,7 @@ func (s *sender) loop() {
 		case filesList := <-s.filesCh:
 			fullyDelivered, err := s.loopIteration(filesList)
 
+			log.Printf("bla bla bla im here")
 			if err == nil {
 				sleepInterval = pollInterval
 			} else {
