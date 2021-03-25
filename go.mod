@@ -1,4 +1,4 @@
-module mykittenhouse
+module github.com/NevolinAlex/kittenhouse
 
 go 1.16
 

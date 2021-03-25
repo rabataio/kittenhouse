@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"mykittenhouse/core/clickhouse"
-	"mykittenhouse/core/destination"
+	"github.com/NevolinAlex/kittenhouse/core/clickhouse"
+	"github.com/NevolinAlex/kittenhouse/core/destination"
 )
 
 const (
