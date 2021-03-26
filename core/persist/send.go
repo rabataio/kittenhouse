@@ -314,17 +314,17 @@ func (s *sender) loopIteration(filesList []string) (fullyDelivered bool, err1 er
 }
 
 func (s *sender) sendFile(relFilename string, off ackOff) (newOff ackOff, fullyDelivered bool, err error) {
-	fp, err := os.Open(filepath.Join(conf.Dir, relFilename))
-	if err != nil {
-		// FlushAcknowlegedOffsetsMap works in another goroutine and renames files to ".done", it is not an error
-		if os.IsNotExist(err) {
-			return off, false, nil
+		fp, err := os.Open(filepath.Join(conf.Dir, relFilename))
+		if err != nil {
+			// FlushAcknowlegedOffsetsMap works in another goroutine and renames files to ".done", it is not an error
+			if os.IsNotExist(err) {
+				return off, false, nil
+			}
+			return off, false, err
 		}
-		return off, false, err
-	}
-	defer fp.Close()
+		defer fp.Close()
 
-	fullyDelivered = true
+		fullyDelivered = true
 
 	if off.Table == "" {
 		// This should be a very rare case when daemon crashed before it could write new offsets file.
@@ -395,23 +395,21 @@ func (s *sender) handleSyntaxErrors(relFilename, table string, bytesRead int64, 
 		return false // too bad that we have syntax error for internal buffer log, we cannot log it into itself
 	}
 
-	if s.linesCount <= 1 {
 		InternalLog("persist.syntax_error", table, int64(len(s.buf)), err.Error(), string(s.buf))
 		return false
-	}
 
-	brk, ok := s.brokenFilesMap[relFilename]
-
-	if ok {
-		brk.maxSendSize /= 2
-	} else {
-		s.brokenFilesMap[relFilename] = &brokenState{
-			maxSendSize:     conf.MaxSendSize / 2,
-			brokenBytesLeft: bytesRead,
-		}
-	}
-
-	return true
+	//brk, ok := s.brokenFilesMap[relFilename]
+	//
+	//if ok {
+	//	brk.maxSendSize /= 2
+	//} else {
+	//	s.brokenFilesMap[relFilename] = &brokenState{
+	//		maxSendSize:     conf.MaxSendSize / 2,
+	//		brokenBytesLeft: bytesRead,
+	//	}
+	//}
+	//
+	//return true
 }
 
 var headerSep = []byte("#")
