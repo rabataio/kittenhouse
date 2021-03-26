@@ -112,7 +112,10 @@ func IsSyntaxError(err error) bool {
 		return false
 	}
 
-	return strings.Contains(e.msg, `Cannot parse input:`) || strings.Contains(e.msg, `Type mismatch`) || strings.Contains(e.msg, `Cannot read all data`)
+	return strings.Contains(e.msg, `Cannot parse input:`) ||
+		strings.Contains(e.msg, `Type mismatch`) ||
+		strings.Contains(e.msg, `Invalid IPv4 value`) ||
+		strings.Contains(e.msg, `Cannot read all data`)
 }
 
 // Flush sends data to clickhouse and returns errors if any
