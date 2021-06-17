@@ -1,9 +1,6 @@
 FROM golang:1.16.2 as build
 
-WORKDIR /src
-COPY . .
-RUN go build -o /go/bin/kittenhouse .
-#RUN go get github.com/NevolinAlex/kittenhouse
+RUN go get github.com/NevolinAlex/kittenhouse
 
 FROM alpine
 ARG KH_PERSISTENT_DIR="/tmp/kittenhouse"
