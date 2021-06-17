@@ -63,7 +63,6 @@ func parseConfig(fp io.Reader) (result destination.Map, hash string, err error) 
 		return nil, "", err
 	}
 	lines := strings.Split(commentRegex.ReplaceAllString(string(contentsRaw), ""), ";")
-
 	res := make(destination.Map)
 	state := &parseConfigState{defaultPort: 8123, tables: make(map[string]struct{})}
 
@@ -77,10 +76,6 @@ func parseConfig(fp io.Reader) (result destination.Map, hash string, err error) 
 		if err := state.parseLine(ln, res); err != nil {
 			return nil, "", err
 		}
-	}
-
-	if !state.haveDefault {
-		return nil, "", errors.New("No default section found")
 	}
 
 	for _, settings := range res {
@@ -178,11 +173,6 @@ func (state *parseConfigState) parseLine(ln string, res destination.Map) (err er
 
 	switch action[0] {
 	case '*':
-		if state.haveDefault {
-			return fmt.Errorf("Duplicate default server for line '%s'", ln)
-		}
-		state.haveDefault = true
-
 		dst, servers, err := state.servers(options)
 		if err != nil {
 			return fmt.Errorf("Could not parse line '%s': %s", ln, err.Error())

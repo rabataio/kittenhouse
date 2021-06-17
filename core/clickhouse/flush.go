@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/NevolinAlex/kittenhouse/core/cmdconfig"
 	"io"
 	"io/ioutil"
 	"log"
@@ -18,8 +19,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vkcom/engine-go/srvfunc"
 	"github.com/NevolinAlex/kittenhouse/core/destination"
+	"github.com/vkcom/engine-go/srvfunc"
 )
 
 const (
@@ -469,9 +470,26 @@ func flush(dst *destination.Setting, table string, body []byte, rowBinary bool, 
 		compressionArgs = "decompress=1&http_native_compression_disable_checksumming_on_decompress=1&"
 	}
 
-	url := fmt.Sprintf("http://%s/?input_format_values_interpret_expressions=0&%squery=%s", srv, compressionArgs, queryPrefix)
+	url := fmt.Sprintf("http://%s/?input_format_values_interpret_expressions=0&%squery=%s&database=%s", srv, compressionArgs,
+		queryPrefix, cmdconfig.Argv.ChDatabase)
 
-	resp, err := httpClient.Post(url, "application/x-www-form-urlencoded", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	if cmdconfig.Argv.ChUser != "" {
+		req.Header.Add("X-ClickHouse-User", cmdconfig.Argv.ChUser)
+	}
+
+	if cmdconfig.Argv.ChPassword != "" {
+		req.Header.Add("X-ClickHouse-Key", cmdconfig.Argv.ChPassword)
+	}
+
+	resp, err := httpClient.Do(req)
+
 	if err != nil {
 		log.Printf("Could not post to table %s to clickhouse: %s", table, err.Error())
 		dst.TempDisableHost(srv, checkHostAlive)

@@ -12,29 +12,61 @@ You will need to do the following to install kittenhouse on your server (the onl
 2. `go get github.com/NevolinAlex/kittenhouse`
 3. You're done, your binary is located at `$GOPATH/bin/kittenhouse` (e.g. `~/go/bin/kittenhouse`)
 
-## Command-line options
-
-The simplest way to launch kittenhouse is the following:
+## Run
 
 ```sh
-$ kittenhouse -u='' -g=''
+$ kittenhouse 
 ```
 
-It will launch kittenhouse with current user and group (empty `-u` and `-g` arguments) and expect a single ClickHouse server to be located at `127.0.0.1:8123`.
+### Environment variables
+All configurations implemented by environment variables:
 
-Here are the essential command-line options that you will most certainly need to modify are the following:
+- `KH_HOST` - listening host. Default: `0.0.0.0`
+- `KH_PORT` - listening port. Default: `13338`
+- `SYSTEM_USER` - daemon user (default is `kitten`)
+- `SYSTEM_GROUP` - daemon group (default is `kitten`)
+- `LOG_FILE` - log file
+- `CLICKHOUSE_HOSTS` - clickhouse hosts in format `host_1:port_1;host_2:port_2;...;host_n:port_n`. Default: `127.0.0.1:8123`
+- `KH_CORES` - Max cpu cores usage
+- `MAX_OPEN_FILES` - open files limit
+- `CLICKHOUSE_DATABASE` - clickhouse database. Default: `default`
+- `CLICKHOUSE_USER` - clickhouse user
+- `CLICKHOUSE_PASSWORD` - clickhouse password
+- `CONFIG_PATH` - path to routing config
+- `PERSISTENCE_DIR` - directory for persisting logs
+- `MAX_SEND_SIZE` - max batch size to be sent to clickhouse in bytes
+- `MAX_FILE_SIZE` - max file size in bytes
+- `ROTATE_INTERVAL_SEC` - how often to rotate files
 
-```sh
--u <user>        change daemon user (default is "kitten")
--g <group>       change daemon group (default is "kitten")
--ch-addr <addr>  ClickHouse server address (if you have only one ClickHouse server)
--l <filename>    log file (default is STDERR)
--h <host>        listen host (default is "0.0.0.0" which may be dangerous!)
--p <port>        listen port (default is 13338)
--dir <dirname>   directory where kittenhouse stores persistent content
+## Run in docker
+
+You can create docker image using the following command
+
+```shell
+git clone github.com/NevolinAlex/kittenhouse && cd kittenhouse
+docker build -t kittenhouse .
 ```
 
-You can see the full list of options by running `kittenhouse --help`.
+Then run it (e.g.)
+
+```shell
+docker run --env SYSTEM_USER='root' --env SYSTEM_GROUP='root' \
+--env CLICKHOUSE_HOSTS="172.17.0.2:8123;172.17.0.3:8123" \
+--env KH_PORT=8124 --name kittenhouse -p "8124:8124" kittenhouse:latest
+```
+
+Don't forget to map port inside container.
+
+### Volumes
+
+You can map persistence directory outside container (by default directory is `/tmp/kittenhouse`) 
+
+```shell
+docker run --env SYSTEM_USER='root' --env SYSTEM_GROUP='root' \
+--env CLICKHOUSE_HOSTS="172.17.0.2:8123;172.17.0.3:8123" \
+--env KH_PORT=8124 --name kittenhouse -p "8124:8124" \
+-v /path/to/dir:/tmp/kittenhouse kittenhouse:latest
+```
 
 ## Usage
 
