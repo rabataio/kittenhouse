@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vkcom/engine-go/srvfunc"
 	"github.com/NevolinAlex/kittenhouse/core/destination"
+	"github.com/vkcom/engine-go/srvfunc"
 )
 
 const (

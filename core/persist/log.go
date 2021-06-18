@@ -3,6 +3,7 @@ package persist
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/NevolinAlex/kittenhouse/core/cmdconfig"
 	"hash/crc32"
 	"log"
 	"os"
@@ -235,6 +236,9 @@ const (
 // InternalLog adds entry to internal log table.
 // Be careful to avoid infinite recursion when using inside of persist package itself.
 func InternalLog(typ, table string, volume int64, message, content string) {
+	if !cmdconfig.Argv.LogToTables {
+		return
+	}
 	Write(internalBufferTable, []byte(fmt.Sprintf(
 		"('%010d','%s',%d,'%s','%s',%d,'%s','%s')",
 		time.Now().Unix(), clickhouse.Escape(conf.host), conf.Port, clickhouse.Escape(typ), clickhouse.Escape(table), volume, clickhouse.Escape(message), clickhouse.Escape(content),
@@ -243,6 +247,9 @@ func InternalLog(typ, table string, volume int64, message, content string) {
 
 // Heartbeat adds entry to daemon_heartbeat_buffer table.
 func Heartbeat(buildVersion, buildCommit string, configTs int32, configHash string, memoryUsedBytes uint64, cpuUserAvg, cpuSysAvg float32) {
+	if !cmdconfig.Argv.LogToTables {
+		return
+	}
 	Write(heartbeatBufferTable, []byte(fmt.Sprintf(
 		"('%010d','kittenhouse','%s',%d,'%s','%s','%010d','%s',%d,%v,%v)",
 		time.Now().Unix(), clickhouse.Escape(conf.host), conf.Port, clickhouse.Escape(buildVersion), clickhouse.Escape(buildCommit), configTs, clickhouse.Escape(configHash), memoryUsedBytes, cpuUserAvg, cpuSysAvg,
