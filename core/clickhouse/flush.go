@@ -6,9 +6,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/NevolinAlex/kittenhouse/core/cmdconfig"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -19,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/NevolinAlex/kittenhouse/core/cmdconfig"
 	"github.com/NevolinAlex/kittenhouse/core/destination"
 	"github.com/vkcom/engine-go/srvfunc"
 )
@@ -437,7 +436,7 @@ func flush(dst *destination.Setting, table string, body []byte, rowBinary bool, 
 		return ErrTemporarilyUnavailable
 	}
 
-	// do not estabilish more than a single HTTP connection to clickhouse server
+	// do not establish more than a single HTTP connection to clickhouse server
 	meow := getKittenMeowForServer(srv)
 
 	meow.Lock()
@@ -473,9 +472,13 @@ func flush(dst *destination.Setting, table string, body []byte, rowBinary bool, 
 	url := fmt.Sprintf("http://%s/?input_format_values_interpret_expressions=0&%squery=%s&database=%s", srv, compressionArgs,
 		queryPrefix, cmdconfig.Argv.ChDatabase)
 
-	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		panic(err)
+	}
+
+	if cmdconfig.Argv.AuthorizationHeader != "" {
+		req.Header.Set("Authorization", cmdconfig.Argv.AuthorizationHeader)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -499,7 +502,7 @@ func flush(dst *destination.Setting, table string, body []byte, rowBinary bool, 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		bodyText, _ := ioutil.ReadAll(resp.Body)
+		bodyText, _ := io.ReadAll(resp.Body)
 		log.Printf("Could not post to table %s to clickhouse (HTTP code %d): %s", table, resp.StatusCode, bodyText)
 		// Can only be sure that server is misconfigured if nginx responds instead of ClickHouse.
 		// Other problems like 404 error may indicate temporary problems like dropped buffer table.
@@ -518,7 +521,7 @@ func flush(dst *destination.Setting, table string, body []byte, rowBinary bool, 
 		}
 	}
 
-	io.Copy(ioutil.Discard, resp.Body) // keepalive
+	io.Copy(io.Discard, resp.Body) // keepalive
 
 	if debug {
 		log.Printf("Sent %d KiB to clickhouse server %s for %s", len(body)/1024, srv, time.Since(start))

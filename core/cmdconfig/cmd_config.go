@@ -1,7 +1,9 @@
 package cmdconfig
 
 import (
+	"encoding/base64"
 	"flag"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -11,14 +13,16 @@ var (
 	Argv struct {
 		Reverse bool
 
-		Host       string
-		Port       uint
-		Help       bool
-		Version    bool
-		MarkAsDone bool
-		User       string
-		Group      string
-		Log        string
+		Host                string
+		Port                uint
+		BasicAuth           string
+		AuthorizationHeader string
+		Help                bool
+		Version             bool
+		MarkAsDone          bool
+		User                string
+		Group               string
+		Log                 string
 
 		MaxOpenFiles      uint64
 		NProc             uint
@@ -47,6 +51,7 @@ func init() {
 	// common options
 	Argv.Host = getStringOrDefault(os.Getenv("KH_HOST"), `0.0.0.0`)
 	Argv.Port = getUintOrDefault(os.Getenv("KH_PORT"), 8080)
+	Argv.BasicAuth = getStringOrDefault(os.Getenv("BASIC_AUTH"), "")
 	Argv.User = getStringOrDefault(os.Getenv("SYSTEM_USER"), `kitten`)
 	Argv.Group = getStringOrDefault(os.Getenv("SYSTEM_GROUP"), `kitten`)
 	Argv.Log = getStringOrDefault(os.Getenv("LOG_FILE"), "")
@@ -67,6 +72,12 @@ func init() {
 	Argv.LogToTables = getBoolOrDefault(os.Getenv("LOG_TO_TABLES"))
 	flag.Parse()
 	Argv.ChHosts = strings.Split(Argv.ChHostsString, `;`)
+	if Argv.BasicAuth != "" {
+		Argv.AuthorizationHeader = fmt.Sprintf(
+			"Basic: %s",
+			base64.StdEncoding.EncodeToString([]byte(Argv.BasicAuth)),
+		)
+	}
 }
 
 func getStringOrDefault(value string, defaultValue string) string {

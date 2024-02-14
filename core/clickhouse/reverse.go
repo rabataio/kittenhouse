@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/NevolinAlex/kittenhouse/core/cmdconfig"
 	"github.com/valyala/fasthttp"
 )
 
@@ -170,6 +171,11 @@ func reverseProxyHandler(ctx *fasthttp.RequestCtx) {
 	req := &ctx.Request
 	resp := &ctx.Response
 	req.Header.Del("Connection")
+
+	if cmdconfig.Argv.AuthorizationHeader != "" {
+		req.Header.Set("Authorization", cmdconfig.Argv.AuthorizationHeader)
+	}
+
 	if err := proxyClient.Do(req, resp); err != nil {
 		log.Printf("error when proxying the request: %s", err)
 	}
@@ -432,8 +438,9 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 
 // RunReverseProxy starts a web server that proxies INSERTs and SELECTs to ClickHouse.
 // INSERTs are grouped by query text in URL.
-//    listenAddr is in form "0.0.0.0:1234"
-//    chAddr     is the address of ClickHouse and must be in form "127.0.0.1:2345" as well
+//
+//	listenAddr is in form "0.0.0.0:1234"
+//	chAddr     is the address of ClickHouse and must be in form "127.0.0.1:2345" as well
 func RunReverseProxy(listenAddr, chAddr string) error {
 	proxyClient = &fasthttp.HostClient{
 		Addr:                chAddr,
